@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中華語文知識庫 - 漢字源流多字批次查詢器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif TC"', 'serif'],
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            ink: {
+              50: '#f7f6f2',
+              100: '#ede9df',
+              200: '#dad2bf',
+              700: '#3c3933',
+              800: '#2a2722',
+              900: '#1a1917',
+            },
+            vermilion: {
+              500: '#c53d33',
+              600: '#ab2f26',
+              700: '#8c221a',
+            },
+            ochre: {
+              500: '#b8860b',
+              600: '#996f08',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbf9f5;
+      color: #2b2823;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .ancient-seal {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      letter-spacing: 0.15em;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1ede4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cfc7b4;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a99f89;
+    }
+    .grid-pattern {
+      background-image: radial-gradient(#d5cbb8 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col grid-pattern">
+
+  <header class="bg-[#f5efe3] border-b border-[#ded5c2] shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-vermilion-600 text-white flex items-center justify-center font-serif font-bold text-xl shadow-md border border-vermilion-700">
+          源
+        </div>
+        <div>
+          <h1 class="font-serif font-bold text-lg sm:text-xl text-ink-900 tracking-wide flex items-center gap-2">
+            漢字源流多字批次查詢
+            <span class="text-xs bg-amber-100 text-amber-900 border border-amber-300 font-sans px-2 py-0.5 rounded-full hidden sm:inline-block">
+              搭配中華語文知識庫
+            </span>
+          </h1>
+          <p class="text-xs text-ink-700 hidden sm:block">
+            甲骨文 • 金文 • 戰國文字 • 小篆 • 隸書 • 楷書 六體源流一覽
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <a href="https://www.chinese-linguipedia.org/search_source.html" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="inline-flex items-center gap-1 text-xs font-medium bg-white hover:bg-[#eae3d2] text-ink-800 border border-[#c8beaa] px-3 py-1.5 rounded-md transition shadow-sm">
+          <span>官方原站首頁</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+    
+    <!-- Top Controller / Input Card -->
+    <div class="bg-white rounded-xl border border-[#e2d9c7] p-5 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-[#eee7da] pb-3">
+        <div>
+          <h2 class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
+            <span class="w-2 h-4 bg-vermilion-600 rounded-sm inline-block"></span>
+            輸入欲查詢的漢字（支援整段文章、成語、詞組）
+          </h2>
+          <p class="text-xs text-ink-700">系統將自動提取單獨漢字，過濾標點與英數符號，並支援一鍵批次查詢。</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-ink-700 font-medium">快速載入範例：</span>
+          <button onclick="loadSample('道法自然天地玄黃')" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">道法自然</button>
+          <button onclick="loadSample('春眠不覺曉處處聞啼鳥')" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">春眠不覺曉</button>
+          <button onclick="loadSample('金木水火土日月山川')" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">五行自然</button>
+          <button onclick="loadSample('耳目口鼻手足心首')" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">人體器官</button>
+          <button onclick="loadSample('民臣尹王帝君吏')" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">社會官職</button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <textarea id="rawInput" rows="3" 
+          placeholder="在此貼上或輸入您想研究源流的漢字，例如：「上善若水，水善利萬物而不爭」..."
+          class="w-full p-3.5 bg-[#faf8f4] border border-[#d6ccb9] rounded-lg text-ink-900 placeholder-[#9f9684] focus:outline-none focus:ring-2 focus:ring-vermilion-500 focus:bg-white transition text-base leading-relaxed font-serif"></textarea>
+        
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="processInput()" 
+              class="px-5 py-2 bg-vermilion-600 hover:bg-vermilion-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center gap-2 transition active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <span>解析漢字清單</span>
+            </button>
+            <label class="flex items-center gap-1.5 text-xs text-ink-800 cursor-pointer select-none">
+              <input type="checkbox" id="dedupeCheck" checked class="rounded border-gray-300 text-vermilion-600 focus:ring-vermilion-500 w-4 h-4">
+              <span>自動去除重複字</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-xs text-ink-800 cursor-pointer select-none">
+              <input type="checkbox" id="traditionalCheck" checked class="rounded border-gray-300 text-vermilion-600 focus:ring-vermilion-500 w-4 h-4">
+              <span>僅保留中文字元</span>
+            </label>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="clearAll()" class="px-3 py-1.5 text-xs text-ink-700 hover:text-ink-900 border border-[#d6ccb9] rounded-md hover:bg-ink-100 transition">
+              清空
+            </button>
+            <button onclick="openAllInTabs()" id="btnOpenAll" class="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md shadow-sm transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <span>在官方新分頁批次打開全字 (<span id="batchCount">0</span>)</span>
+            </button>
+            <button onclick="copyAllLinks()" class="px-3 py-1.5 text-xs bg-[#f4ece0] hover:bg-[#e8decb] text-ink-800 border border-[#d1c5b0] rounded-md transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span>複製所有源流網址</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extracted Character Matrix Bar -->
+    <div id="characterBarSection" class="bg-white rounded-xl border border-[#e2d9c7] p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-serif font-bold text-ink-900">已解析字庫</span>
+          <span id="charTotalBadge" class="text-xs bg-vermilion-50 text-vermilion-700 border border-vermilion-200 px-2 py-0.5 rounded-full font-sans font-medium">共 0 字</span>
+          <span class="text-xs text-ink-700 hidden sm:inline">（點擊字磚可切換檢視；點擊核取方塊可自選對照）</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <button onclick="selectAllChars(true)" class="text-vermilion-700 hover:underline">全選</button>
+          <span class="text-gray-300">|</span>
+          <button onclick="selectAllChars(false)" class="text-ink-700 hover:underline">取消全選</button>
+          <span class="text-gray-300">|</span>
+          <button onclick="toggleCompareMode()" id="compareModeBtn" class="px-2.5 py-1 rounded bg-[#eee7d8] hover:bg-[#e2d8c3] text-ink-800 font-medium">
+            切換至並列對照模式
+          </button>
+        </div>
+      </div>
+
+      <!-- Character Badges Grid -->
+      <div id="characterBadges" class="flex flex-wrap gap-2 pt-1 max-h-48 overflow-y-auto pr-1">
+        <!-- Will be populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Work Area: Single Inspect vs Multi Compare -->
+    <div id="singleInspectView" class="space-y-4">
+      <!-- Active Character Card Header -->
+      <div class="bg-[#fcfaf6] rounded-xl border border-[#ded5c3] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <div id="activeBigChar" class="w-20 h-20 bg-white border-2 border-vermilion-600 rounded-xl shadow-inner flex items-center justify-center font-serif text-5xl font-black text-ink-900">
+              北
+            </div>
+            <span class="absolute -bottom-2 -right-1 text-[10px] bg-vermilion-600 text-white px-1.5 py-0.2 rounded shadow">
+              當前
+            </span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <h3 class="font-serif font-bold text-xl text-ink-900">漢字「<span id="activeCharTitle">北</span>」源流詳情</h3>
+              <span id="builtInBadge" class="text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full">
+                含內建六體演變考釋
+              </span>
+            </div>
+            <p id="activeCharDesc" class="text-xs text-ink-700">
+              中華語文知識庫標準字形源流收錄字，點擊下方可檢視官方源流考釋、字形演變與說文解字。
+            </p>
+            <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
+              <span class="text-ink-700">外部快速檢索：</span>
+              <a id="btnLinguipediaDirect" href="#" target="_blank" class="text-vermilion-700 hover:underline font-medium flex items-center gap-0.5">
+                中華語文知識庫官方頁面
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <span class="text-gray-300">•</span>
+              <a id="btnXiaoxuetangDirect" href="#" target="_blank" class="text-ink-700 hover:text-ink-900 hover:underline">
+                中研院小學堂
+              </a>
+              <span class="text-gray-300">•</span>
+              <a id="btnHandianDirect" href="#" target="_blank" class="text-ink-700 hover:text-ink-900 hover:underline">
+                漢典字源
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end md:self-center">
+          <button onclick="prevChar()" class="p-2 bg-white hover:bg-ink-100 text-ink-800 border border-[#d6ccb9] rounded-lg transition" title="上一個字">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button onclick="nextChar()" class="p-2 bg-white hover:bg-ink-100 text-ink-800 border border-[#d6ccb9] rounded-lg transition" title="下一個字">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Embedded Chinese Linguipedia Interactive Frame -->
+      <div class="bg-white rounded-xl border border-[#e2d9c7] p-4 shadow-sm space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h4 class="font-serif font-bold text-sm text-ink-900 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-vermilion-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+              中華語文知識庫官方源流原頁內嵌檢視器
+            </h4>
+            <p class="text-xs text-ink-700">
+              即時載入官方頁面：<code id="currentFrameUrlText" class="text-[11px] bg-ink-100 px-1.5 py-0.5 rounded text-ink-800">https://www.chinese-linguipedia.org/search_source_inner.html?word=北</code>
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="reloadIframe()" class="px-2.5 py-1 text-xs border border-[#cfc4af] rounded hover:bg-ink-100 text-ink-800 transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              重新整理框架
+            </button>
+            <a id="btnOpenCurrentDirectTab" href="#" target="_blank" class="px-3 py-1 text-xs bg-vermilion-600 hover:bg-vermilion-700 text-white rounded font-medium transition flex items-center gap-1">
+              <span>在獨立分頁開啟此字源流</span>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Iframe Container -->
+        <div class="relative w-full h-[540px] bg-[#f9f7f2] rounded-lg border border-[#d8cdb8] overflow-hidden">
+          <iframe id="linguipediaIframe" 
+            src="about:blank" 
+            class="w-full h-full border-0" 
+            loading="lazy"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups">
+          </iframe>
+          
+          <!-- Notice Overlay if iframe blocked by cross-origin policy -->
+          <div id="iframeNotice" class="absolute bottom-2 right-2 bg-white/95 backdrop-blur-sm border border-[#d8cdb8] text-[11px] text-ink-700 px-3 py-1.5 rounded shadow-sm flex items-center gap-2">
+            <span>如瀏覽器安全策略封鎖內嵌，請點擊上方按鈕直接開新分頁閱讀官方圖文。</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOE Chinese Dictionary & Vocabulary Explorer (教育部國語辭典字義與造詞模組) -->
+      <div class="bg-white rounded-xl border border-[#e2d9c7] p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#eee7da] pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-4 bg-amber-600 rounded-sm inline-block"></span>
+            <h4 class="font-serif font-bold text-base text-ink-900 flex items-center gap-2">
+              教育部國語辭典 • 字義與造詞速查
+            </h4>
+            <span id="dictSourceBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-sans font-medium">
+              教育部重編國語辭典修訂本
+            </span>
+          </div>
+
+          <!-- Official MOE direct links -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-ink-700">延伸檢索：</span>
+            <a id="btnMoeRevised" href="https://dict.revised.moe.edu.tw/" target="_blank" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded transition font-medium">
+              重編國語辭典 ↗
+            </a>
+            <a id="btnMoeConcise" href="https://dict.concised.moe.edu.tw/" target="_blank" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">
+              簡編本 ↗
+            </a>
+            <a id="btnMoeIdiom" href="https://dict.idioms.moe.edu.tw/" target="_blank" class="px-2 py-1 bg-ink-100 hover:bg-ink-200 text-ink-800 rounded transition">
+              成語典 ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Dictionary Card: Pronunciation, Radical, Stroke, Definitions -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          <!-- Left: Pronunciation & Definitions List -->
+          <div class="lg:col-span-7 space-y-3">
+            <div class="bg-[#faf8f4] border border-[#e5dcce] rounded-lg p-3.5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-baseline gap-3 flex-wrap">
+                <span class="text-xs text-ink-700 font-serif">讀音／注音：</span>
+                <span id="dictBopomofo" class="font-serif text-lg font-bold text-vermilion-700">ㄅㄟˇ</span>
+                <span id="dictPinyin" class="text-xs text-ink-700 font-mono bg-white px-2 py-0.5 rounded border border-[#e2d8c3]">běi</span>
+                <div id="multiPronunciationTabs" class="flex items-center gap-1"></div>
+              </div>
+              <div class="text-xs text-ink-700 space-x-3">
+                <span>部首：<strong id="dictRadical" class="text-ink-900 font-serif">匕</strong></span>
+                <span>總筆畫：<strong id="dictStrokes" class="text-ink-900">5</strong> 畫</span>
+                <span>部外筆畫：<strong id="dictExtStrokes" class="text-ink-900">3</strong> 畫</span>
+              </div>
+            </div>
+
+            <!-- Definition List Container -->
+            <div class="space-y-2">
+              <div class="text-xs font-serif font-bold text-ink-800 flex items-center justify-between">
+                <span>【詳細字義與詞性】</span>
+                <span id="dictDefCount" class="text-[11px] text-ink-700">共 3 項釋義</span>
+              </div>
+              <div id="dictDefinitionsContainer" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Phrases and Idioms (造詞與常用詞語) -->
+          <div class="lg:col-span-5 flex flex-col justify-between bg-[#fcfbf7] border border-[#e5dcce] rounded-lg p-4 space-y-3">
+            <div>
+              <div class="flex items-center justify-between border-b border-[#ebd8c0] pb-2 mb-3">
+                <h5 class="font-serif font-bold text-sm text-ink-900 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+                  <span>常用造詞與成語庫</span>
+                </h5>
+                <span class="text-[11px] text-ink-700">點擊造詞可直接複製</span>
+              </div>
+              
+              <!-- Phrase categories -->
+              <div class="space-y-3">
+                <div>
+                  <div class="text-[11px] font-semibold text-ink-700 mb-1.5 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-vermilion-500"></span> 詞首造詞（前綴）
+                  </div>
+                  <div id="phrasePrefixChips" class="flex flex-wrap gap-1.5 min-h-[28px]">
+                    <!-- Chips inserted here -->
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-[11px] font-semibold text-ink-700 mb-1.5 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> 詞尾造詞（後綴）
+                  </div>
+                  <div id="phraseSuffixChips" class="flex flex-wrap gap-1.5 min-h-[28px]">
+                    <!-- Chips inserted here -->
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-[11px] font-semibold text-ink-700 mb-1.5 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> 常用成語典故
+                  </div>
+                  <div id="phraseIdiomsChips" class="flex flex-wrap gap-1.5 min-h-[28px]">
+                    <!-- Chips inserted here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick copy helper -->
+            <div class="pt-2 border-t border-[#ebd8c0] flex items-center justify-between text-xs text-ink-700">
+              <span id="phraseStatusHint">點選上方詞彙可複製至剪貼簿</span>
+              <button onclick="copyAllPhrases()" class="text-xs text-vermilion-700 hover:underline font-medium">
+                複製此字全部造詞
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi Compare View (Hidden by default, activated on button click) -->
+    <div id="multiCompareView" class="hidden space-y-4">
+      <div class="bg-white rounded-xl border border-[#e2d9c7] p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <h3 class="font-serif font-bold text-lg text-ink-900">漢字字義與造詞並列對照面板</h3>
+          <p class="text-xs text-ink-700">同時檢視多個選定漢字的注音讀音、國語字義與常用造詞，方便比對組詞結構。</p>
+        </div>
+        <button onclick="toggleCompareMode()" class="px-3 py-1.5 text-xs bg-ink-100 hover:bg-ink-200 text-ink-900 rounded-md font-medium transition">
+          返回單字詳情模式
+        </button>
+      </div>
+
+      <div id="compareGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Will be populated by selected characters -->
+      </div>
+    </div>
+
+    <!-- Export & Study Sheet Generator -->
+    <div class="bg-white rounded-xl border border-[#e2d9c7] p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-[#eee7da] pb-3">
+        <div>
+          <h4 class="font-serif font-bold text-base text-ink-900">教學研習與筆記匯出</h4>
+          <p class="text-xs text-ink-700">將已解析字庫產出為 Markdown 清單、教材字卡或源流網址對照表。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportMarkdown()" class="px-3 py-1 text-xs bg-[#f4ece0] hover:bg-[#e8decb] text-ink-800 border border-[#d1c5b0] rounded transition font-medium">
+            複製 Markdown 研習筆記
+          </button>
+          <button onclick="exportCsv()" class="px-3 py-1 text-xs bg-[#f4ece0] hover:bg-[#e8decb] text-ink-800 border border-[#d1c5b0] rounded transition font-medium">
+            下載 CSV 連結清單
+          </button>
+        </div>
+      </div>
+      <div id="exportStatusMsg" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded">
+        已成功複製到剪貼簿！
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="bg-[#f0e9dc] border-t border-[#ded5c2] py-6 mt-12 text-center text-xs text-ink-700 space-y-2">
+    <p>
+      本工具專為搭配<strong>「中華語文知識庫（中華文化總會）」</strong>之「漢字源流」資料庫輔助研讀而設計。
+    </p>
+    <p class="text-[11px] text-ink-700">
+      漢字學考釋與歷代字形版權歸原機構及著作者所有。官方資料庫收錄約 3,000 常用漢字源流考釋。
+    </p>
+  </footer>
+
+  <script>
+    /*
+     * Comprehensive Mandarin Chinese Dictionary & Vocabulary Knowledge Base
+     * (教育部重編國語辭典 / 萌典開放 API 即時串接 + 常用生活詞彙資料庫)
+     */
+    const dictCache = {};
+
+    // 嚴選常用真詞庫（涵蓋高頻字之詞首、詞尾常用詞與成語，杜絕生硬組合字）
+    const AUTHENTIC_COMMON_VOCAB = {
+      '泉': {
+        prefixes: ['泉水', '泉源', '泉眼', '泉石', '泉幣'],
+        suffixes: ['溫泉', '噴泉', '礦泉', '清泉', '冷泉', '甘泉', '黃泉', '九泉', '源泉', '湧泉', '山泉'],
+        idioms: ['思如泉湧', '含笑九泉', '九泉之下', '泉石膏肓', '湧泉以報', '飲水思源']
+      },
+      '北': {
+        prefixes: ['北方', '北京', '北極', '北風', '北斗', '北伐', '北辰', '北面', '北部'],
+        suffixes: ['西北', '東北', '敗北', '漠北', '逐北', '塞北', '極北', '城北'],
+        idioms: ['屢戰屢北', '追奔逐北', '天南地北', '北轍南轅', '泰山北斗', '南轅北轍']
+      },
+      '道': {
+        prefixes: ['道理', '道德', '道路', '道歉', '道具', '道法', '道義', '道謝', '道白'],
+        suffixes: ['知道', '街道', '公道', '索道', '天道', '地道', '茶道', '霸道', '味道', '通道', '軌道'],
+        idioms: ['志同道合', '道貌岸然', '說長道短', '背道而馳', '微不足道', '頭頭是道']
+      },
+      '法': {
+        prefixes: ['法律', '法則', '法官', '法規', '法院', '法術', '法人', '法寶', '法庭', '法力'],
+        suffixes: ['方法', '合法', '想法', '書法', '辦法', '文法', '家法', '刑法', '做法', '魔法', '憲法'],
+        idioms: ['逍遙法外', '知法犯法', '依法炮製', '奉公守法', '法網恢恢', '約法三章']
+      },
+      '自': {
+        prefixes: ['自然', '自由', '自己', '自動', '自信', '自立', '自強', '自我', '自豪', '自主', '自修'],
+        suffixes: ['親自', '獨自', '擅自', '徑自', '私自', '出自', '源自', '來自', '各自'],
+        idioms: ['自強不息', '自成一家', '自食其力', '自相矛盾', '毛遂自薦', '怡然自得', '悠然自得']
+      },
+      '然': {
+        prefixes: ['然而', '然後', '然諾', '然則'],
+        suffixes: ['自然', '突然', '當然', '坦然', '全然', '欣然', '猛然', '斷然', '安然', '果然', '忽然', '既然', '顯然'],
+        idioms: ['理所當然', '大義凜然', '泰然處之', '悠然自得', '煥然一新', '順其自然', '防患未然']
+      },
+      '天': {
+        prefixes: ['天氣', '天空', '天然', '天使', '天堂', '天下', '天真', '天才', '天賦', '天色'],
+        suffixes: ['今天', '明天', '藍天', '春天', '夏天', '秋天', '冬天', '晴天', '陰天', '整天', '漫天'],
+        idioms: ['天長地久', '頂天立地', '天羅地網', '開天闢地', '天下無雙', '天涯海角']
+      },
+      '地': {
+        prefixes: ['地方', '地球', '地面', '地震', '地位', '地圖', '地點', '地質', '地毯', '地步'],
+        suffixes: ['土地', '草地', '基地', '大地', '天地', '空地', '平地', '陸地', '原地', '產地'],
+        idioms: ['腳踏實地', '頂天立地', '天翻地覆', '驚天動地', '天經地義', '設身處地']
+      },
+      '水': {
+        prefixes: ['水滴', '水分', '水果', '水源', '水準', '水泥', '水平', '水手', '水面'],
+        suffixes: ['清水', '海水', '雨水', '汗水', '溫泉水', '自來水', '河水', '口水', '淚水', '薪水'],
+        idioms: ['水到渠成', '行雲流水', '水落石出', '滴水穿石', '飲水思源', '山清水秀']
+      },
+      '火': {
+        prefixes: ['火焰', '火車', '火山', '火箭', '火災', '火柴', '火花', '火熱', '火力'],
+        suffixes: ['大火', '煙火', '烈火', '點火', '熄火', '怒火', '著火', '營火', '野火'],
+        idioms: ['赴湯蹈火', '火中取栗', '火樹銀花', '水深火熱', '星火燎原', '風風火火']
+      },
+      '木': {
+        prefixes: ['木頭', '木材', '木匠', '木偶', '木板', '木星', '木耳', '木工'],
+        suffixes: ['樹木', '草木', '積木', '原木', '伐木', '紅木', '林木', '神木'],
+        idioms: ['木已成舟', '行將就木', '草木皆兵', '移花接木', '緣木求魚']
+      },
+      '金': {
+        prefixes: ['金牌', '金屬', '金錢', '金融', '金黃', '金子', '金庫', '金質'],
+        suffixes: ['黃金', '白金', '獎金', '現金', '租金', '基金', '酬金', '押金', '五金'],
+        idioms: ['點石成金', '金碧輝煌', '惜墨如金', '金玉良言', '金石為開']
+      },
+      '土': {
+        prefixes: ['土地', '土壤', '土產', '土木', '土豆', '土著', '土氣'],
+        suffixes: ['泥土', '本土', '國土', '沃土', '淨土', '塵土', '破土', '黏土'],
+        idioms: ['土生土長', '面如土色', '灰頭土臉', '入土為安', '揮金如土']
+      },
+      '日': {
+        prefixes: ['日光', '日子', '日曆', '日常', '日期', '日出', '日落', '日記', '日夜'],
+        suffixes: ['節日', '生日', '明日', '昨日', '假日', '紀念日', '夏日', '往日', '來日'],
+        idioms: ['日積月累', '日新月異', '蒸蒸日上', '一日千里', '重見天日', '日理萬機']
+      },
+      '月': {
+        prefixes: ['月亮', '月餅', '月光', '月份', '月底', '月末', '月球', '月曆'],
+        suffixes: ['歲月', '日月', '滿月', '上月', '下月', '新月', '望月', '皓月'],
+        idioms: ['月下老人', '披星戴月', '日新月異', '閉月羞花', '鏡花水月', '海底撈月']
+      },
+      '山': {
+        prefixes: ['山水', '山峰', '山脈', '山坡', '山谷', '山洞', '山川', '山林'],
+        suffixes: ['高山', '青山', '爬山', '靠山', '江山', '火山', '名山', '冰山'],
+        idioms: ['山明水秀', '山窮水盡', '穩如泰山', '跋山涉水', '排山倒海', '逼上梁山']
+      },
+      '川': {
+        prefixes: ['川流', '川資', '川菜', '川劇', '川貝'],
+        suffixes: ['山川', '河川', '名川', '冰川', '百川', '大川', '平川'],
+        idioms: ['川流不息', '跋山涉川', '百川歸海', '海納百川']
+      },
+      '風': {
+        prefixes: ['風景', '風氣', '風向', '風俗', '風采', '風力', '風浪', '風雨', '風範'],
+        suffixes: ['春風', '颱風', '微風', '作風', '風格', '通風', '旋風', '暴風', '家風'],
+        idioms: ['風和日麗', '風調雨順', '呼風喚雨', '雷厲風行', '空穴來風', '意氣風發']
+      },
+      '花': {
+        prefixes: ['花朵', '花費', '花園', '花生', '花紋', '花草', '花樣', '花瓶', '花瓣'],
+        suffixes: ['開花', '鮮花', '梅花', '浪花', '心花', '火花', '雪花', '棉花', '送花'],
+        idioms: ['花團錦簇', '百花齊放', '錦上添花', '心花怒放', '走馬看花', '落花流水']
+      },
+      '鳥': {
+        prefixes: ['鳥類', '鳥瞰', '鳥巢', '鳥語', '鳥鳴', '鳥籠'],
+        suffixes: ['候鳥', '小鳥', '飛鳥', '鴕鳥', '水鳥', '留鳥', '益鳥'],
+        idioms: ['鳥語花香', '驚弓之鳥', '笨鳥先飛', '一石二鳥', '籠中之鳥']
+      }
+    };
+
+    const MOE_DICTIONARY_DB = {
+      '北': {
+        bopomofo: 'ㄅㄟˇ',
+        pinyin: 'běi',
+        radical: '匕',
+        strokes: 5,
+        extStrokes: 3,
+        definitions: [
+          { type: '名', def: '方位名。與「南」相對。清晨面對太陽時，左手所指的方向。', quote: '《書經．堯典》：「分命和叔，宅朔方，曰幽都，便在伏物。」', eg: '如：「正北」、「台北」、「雁南燕北」。' },
+          { type: '動', def: '敗北、打敗仗。古時打了敗仗往回跑，背對敵人，故稱打敗仗為「北」。', quote: '《戰國策．齊策六》：「燕兵大潰，騎劫死，燕軍引而北。」', eg: '如：「屢戰屢北」、「追奔逐北」。' },
+          { type: '形', def: '北方特有的、位於北邊的。', eg: '如：「北風呼嘯」、「北國風光」。' }
+        ],
+        prefixes: AUTHENTIC_COMMON_VOCAB['北'].prefixes,
+        suffixes: AUTHENTIC_COMMON_VOCAB['北'].suffixes,
+        idioms: AUTHENTIC_COMMON_VOCAB['北'].idioms
+      }
+    };
+
+    // Pre-populate dictCache with preset data
+    Object.assign(dictCache, MOE_DICTIONARY_DB);
+
+    let currentChars = ['北', '道', '法', '自', '然', '天', '地', '玄', '黃'];
+    let activeChar = '北';
+    let selectedCharsForCompare = new Set(['北', '道', '法']);
+    let isCompareMode = false;
+
+    // Base URL for Chinese Linguipedia Source Search
+    const LINGUIPEDIA_INNER_BASE = 'https://www.chinese-linguipedia.org/search_source_inner.html?word=';
+
+    // Generates the proper query URL for a specific character
+    function getLinguipediaUrl(char) {
+      return `${LINGUIPEDIA_INNER_BASE}${encodeURIComponent(char)}`;
+    }
+
+    // Direct search link for MOE Revised Mandarin Chinese Dictionary
+    function getMoeRevisedUrl(char) {
+      return `https://dict.revised.moe.edu.tw/search.jsp?md=3&word=${encodeURIComponent(char)}`;
+    }
+
+    // Direct search link for MOE Concise Dictionary
+    function getMoeConciseUrl(char) {
+      return `https://dict.concised.moe.edu.tw/search.jsp?la=0&powerMode=0&q=${encodeURIComponent(char)}`;
+    }
+
+    // Direct search link for MOE Idiom Dictionary
+    function getMoeIdiomUrl(char) {
+      return `https://dict.idioms.moe.edu.tw/idiomSearch.jsp?word=${encodeURIComponent(char)}`;
+    }
+
+    // Helper for Xiaoxuetang URL
+    function getXiaoxuetangUrl(char) {
+      return `https://xiaoxue.iis.sinica.edu.tw/yanbian?word=${encodeURIComponent(char)}`;
+    }
+
+    // Helper for Handian URL
+    function getHandianUrl(char) {
+      return `https://www.zdic.net/hans/${encodeURIComponent(char)}`;
+    }
+
+    /**
+     * 智能萃取教育部辭典中的真實語詞（包含反引號超連結詞彙、引號詞語、以及「如：...」列舉詞彙）
+     */
+    function extractAuthenticVocab(json, ch) {
+      const prefixesSet = new Set();
+      const suffixesSet = new Set();
+      const idiomsSet = new Set();
+
+      // 先載入預設的權威生活常用詞
+      if (AUTHENTIC_COMMON_VOCAB[ch]) {
+        (AUTHENTIC_COMMON_VOCAB[ch].prefixes || []).forEach(w => prefixesSet.add(w));
+        (AUTHENTIC_COMMON_VOCAB[ch].suffixes || []).forEach(w => suffixesSet.add(w));
+        (AUTHENTIC_COMMON_VOCAB[ch].idioms || []).forEach(w => idiomsSet.add(w));
+      }
+
+      const allDefs = [];
+      const heteronyms = json.heteronyms || [];
+      heteronyms.forEach(h => {
+        (h.definitions || []).forEach(d => {
+          if (d.def) allDefs.push(d.def);
+          if (d.example) {
+            if (Array.isArray(d.example)) d.example.forEach(ex => allDefs.push(ex));
+            else allDefs.push(d.example);
+          }
+        });
+      });
+
+      // 正則比對詞彙來源：
+      // 1. 萌典標籤：`詞彙~ 或 `詞彙`
+      // 2. 引號標籤：「詞彙」 或 『詞彙』
+      // 3. 如：A、B、C 等列舉
+      const rawCandidates = [];
+
+      allDefs.forEach(text => {
+        // 1. 抓取 `詞彙~
+        const backtickMatches = text.match(/`([^`~]+)~?/g);
+        if (backtickMatches) {
+          backtickMatches.forEach(m => {
+            const clean = m.replace(/[`~]/g, '').trim();
+            if (clean) rawCandidates.push(clean);
+          });
+        }
+
+        // 2. 抓取 「詞彙」
+        const quoteMatches = text.match(/[「『]([^」』]+)[」』]/g);
+        if (quoteMatches) {
+          quoteMatches.forEach(m => {
+            const clean = m.replace(/[「『」』]/g, '').trim();
+            if (clean) rawCandidates.push(clean);
+          });
+        }
+
+        // 3. 抓取「如：詞1、詞2、詞3」
+        const egListMatches = text.match(/(?:如|例如|像|譬如)[：:]\s*([^。；\n\r]+)/g);
+        if (egListMatches) {
+          egListMatches.forEach(matchStr => {
+            const content = matchStr.replace(/^(?:如|例如|像|譬如)[：:]\s*/, '');
+            const parts = content.split(/[、，,;\s]+/);
+            parts.forEach(p => {
+              const clean = p.replace(/[`~「」『』]/g, '').trim();
+              if (clean && clean.length >= 2 && clean.length <= 6) {
+                rawCandidates.push(clean);
+              }
+            });
+          });
+        }
+      });
+
+      // 清理與分類候選詞彙
+      rawCandidates.forEach(word => {
+        // 必須為純漢字、包含當前字、長度合宜
+        if (!/^[\u4e00-\u9fff]{2,6}$/.test(word)) return;
+        if (!word.includes(ch)) return;
+
+        if (word.length === 4) {
+          idiomsSet.add(word);
+        } else if (word.startsWith(ch) && word.length <= 4) {
+          prefixesSet.add(word);
+        } else if (word.endsWith(ch) && word.length <= 4) {
+          suffixesSet.add(word);
+        } else if (word.includes(ch) && word.length <= 4) {
+          suffixesSet.add(word);
+        }
+      });
+
+      return {
+        prefixes: Array.from(prefixesSet),
+        suffixes: Array.from(suffixesSet),
+        idioms: Array.from(idiomsSet)
+      };
+    }
+
+    /*
+     * Fetch complete MOE definitions & vocabulary dynamically from Moedict CORS API
+     */
+    async function fetchMoeDictData(ch) {
+      if (dictCache[ch]) {
+        return dictCache[ch];
+      }
+
+      try {
+        const res = await fetch(`https://www.moedict.tw/uni/${encodeURIComponent(ch)}.json`);
+        if (!res.ok) throw new Error('查詢失敗');
+        const json = await res.json();
+
+        const heteronyms = json.heteronyms || [];
+        const primaryHet = heteronyms[0] || {};
+        
+        // Parse definitions
+        const defs = (primaryHet.definitions || []).map(d => {
+          let cleanDef = (d.def || '').replace(/`([^~]+)~/g, '$1');
+          let quote = d.quote ? d.quote.map(q => q.replace(/`([^~]+)~/g, '$1')).join('；') : '';
+          let eg = d.example ? d.example.map(e => e.replace(/`([^~]+)~/g, '$1')).join('；') : '';
+          return {
+            type: d.type || '釋',
+            def: cleanDef,
+            quote: quote,
+            eg: eg
+          };
+        });
+
+        // 提取真實生活造詞
+        const vocab = extractAuthenticVocab(json, ch);
+
+        const parsed = {
+          bopomofo: primaryHet.bopomofo || '—',
+          pinyin: primaryHet.pinyin || '—',
+          radical: json.radical || '—',
+          strokes: json.stroke_count || '—',
+          extStrokes: json.non_radical_stroke_count !== undefined ? json.non_radical_stroke_count : '—',
+          definitions: defs,
+          heteronyms: heteronyms,
+          prefixes: vocab.prefixes,
+          suffixes: vocab.suffixes,
+          idioms: vocab.idioms
+        };
+
+        dictCache[ch] = parsed;
+        return parsed;
+      } catch (err) {
+        console.warn('Moedict API 獲取失敗或字未收錄:', err);
+        return null;
+      }
+    }
+
+    function processInput() {
+      const rawText = document.getElementById('rawInput').value.trim();
+      if (!rawText) {
+        showFeedback('請先輸入文字再進行解析！', 'warning');
+        return;
+      }
+
+      const dedupe = document.getElementById('dedupeCheck').checked;
+      const onlyChinese = document.getElementById('traditionalCheck').checked;
+
+      let extracted = [];
+      for (const ch of rawText) {
+        if (onlyChinese) {
+          if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(ch)) {
+            extracted.push(ch);
+          }
+        } else {
+          if (ch.trim()) {
+            extracted.push(ch);
+          }
+        }
+      }
+
+      if (dedupe) {
+        extracted = Array.from(new Set(extracted));
+      }
+
+      if (extracted.length === 0) {
+        showFeedback('未在輸入中偵測到有效漢字，請重試！', 'error');
+        return;
+      }
+
+      currentChars = extracted;
+      activeChar = currentChars[0];
+      selectedCharsForCompare = new Set(currentChars.slice(0, 4));
+
+      renderCharacterBadges();
+      inspectCharacter(activeChar);
+      showFeedback(`已成功解析 ${currentChars.length} 個漢字！`, 'success');
+    }
+
+    function loadSample(text) {
+      document.getElementById('rawInput').value = text;
+      processInput();
+    }
+
+    function clearAll() {
+      document.getElementById('rawInput').value = '';
+      currentChars = [];
+      activeChar = '';
+      selectedCharsForCompare.clear();
+      renderCharacterBadges();
+      document.getElementById('linguipediaIframe').src = 'about:blank';
+      showFeedback('已清空所有文字。', 'info');
+    }
+
+    function renderCharacterBadges() {
+      const container = document.getElementById('characterBadges');
+      const badgeCount = document.getElementById('charTotalBadge');
+      const batchCount = document.getElementById('batchCount');
+
+      badgeCount.textContent = `共 ${currentChars.length} 字`;
+      batchCount.textContent = currentChars.length;
+
+      container.innerHTML = '';
+
+      if (currentChars.length === 0) {
+        container.innerHTML = `<span class="text-xs text-ink-700 italic">尚無待查漢字，請於上方輸入框貼上內容。</span>`;
+        return;
+      }
+
+      currentChars.forEach((ch) => {
+        const isCurrent = ch === activeChar;
+        const isChecked = selectedCharsForCompare.has(ch);
+        const hasDbInfo = dictCache[ch] !== undefined;
+
+        const badge = document.createElement('div');
+        badge.className = `group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-serif cursor-pointer select-none transition-all shadow-sm ${
+          isCurrent 
+            ? 'bg-vermilion-600 text-white border-vermilion-700 font-bold scale-105 ring-2 ring-vermilion-300' 
+            : 'bg-[#faf8f4] hover:bg-white text-ink-900 border-[#d9cebc] hover:border-vermilion-400'
+        }`;
+
+        badge.innerHTML = `
+          <input type="checkbox" 
+            ${isChecked ? 'checked' : ''} 
+            onclick="event.stopPropagation(); toggleCharSelection('${ch}')"
+            class="w-3.5 h-3.5 rounded border-gray-300 ${isCurrent ? 'accent-white' : 'accent-vermilion-600'} cursor-pointer"
+            title="選取以在並列面板對照"
+          />
+          <span class="text-base font-bold">${ch}</span>
+          ${hasDbInfo ? `<span class="w-1.5 h-1.5 rounded-full ${isCurrent ? 'bg-amber-300' : 'bg-amber-500'}" title="字典資料已載入"></span>` : ''}
+        `;
+
+        badge.onclick = () => {
+          inspectCharacter(ch);
+        };
+
+        container.appendChild(badge);
+      });
+    }
+
+    /*
+     * Populate definitions, phrases, radical, strokes, and pronunciation
+     * from MOE Dictionary Database directly onto the page.
+     */
+    async function inspectCharacter(ch) {
+      if (!ch) return;
+      activeChar = ch;
+
+      // Update Header Info
+      document.getElementById('activeBigChar').textContent = ch;
+      document.getElementById('activeCharTitle').textContent = ch;
+
+      // Update Direct External Links
+      const linUrl = getLinguipediaUrl(ch);
+      document.getElementById('btnLinguipediaDirect').href = linUrl;
+      document.getElementById('btnOpenCurrentDirectTab').href = linUrl;
+      document.getElementById('currentFrameUrlText').textContent = linUrl;
+
+      document.getElementById('btnXiaoxuetangDirect').href = getXiaoxuetangUrl(ch);
+      document.getElementById('btnHandianDirect').href = getHandianUrl(ch);
+
+      // Update MOE direct links
+      document.getElementById('btnMoeRevised').href = getMoeRevisedUrl(ch);
+      document.getElementById('btnMoeConcise').href = getMoeConciseUrl(ch);
+      document.getElementById('btnMoeIdiom').href = getMoeIdiomUrl(ch);
+
+      const builtInBadge = document.getElementById('builtInBadge');
+      const defContainer = document.getElementById('dictDefinitionsContainer');
+      const prefixContainer = document.getElementById('phrasePrefixChips');
+      const suffixContainer = document.getElementById('phraseSuffixChips');
+      const idiomsContainer = document.getElementById('phraseIdiomsChips');
+      const multiPronTabs = document.getElementById('multiPronunciationTabs');
+
+      multiPronTabs.innerHTML = '';
+
+      // If not yet in cache, display loading state
+      if (!dictCache[ch]) {
+        defContainer.innerHTML = `
+          <div class="py-8 text-center text-ink-700 space-y-2">
+            <div class="inline-block animate-spin w-6 h-6 border-2 border-vermilion-600 border-t-transparent rounded-full"></div>
+            <p class="text-xs">正在向教育部國語辭典檢索「${ch}」的字義、詞性與造詞...</p>
+          </div>
+        `;
+      }
+
+      // Fetch or read from cache
+      const info = await fetchMoeDictData(ch);
+
+      if (info && info.definitions && info.definitions.length > 0) {
+        builtInBadge.className = 'text-xs bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full';
+        builtInBadge.textContent = '已載入教育部辭典完整釋義';
+
+        document.getElementById('activeCharDesc').textContent = `教育部國語辭典收錄字「${ch}」，部首【${info.radical}】、總筆畫 ${info.strokes} 畫、部外筆畫 ${info.extStrokes} 畫。字義與造詞如下：`;
+
+        document.getElementById('dictBopomofo').textContent = info.bopomofo;
+        document.getElementById('dictPinyin').textContent = info.pinyin;
+        document.getElementById('dictRadical').textContent = info.radical;
+        document.getElementById('dictStrokes').textContent = info.strokes;
+        document.getElementById('dictExtStrokes').textContent = info.extStrokes;
+        document.getElementById('dictDefCount').textContent = `共 ${info.definitions.length} 項釋義`;
+
+        // Render multi-pronunciation tabs if available
+        if (info.heteronyms && info.heteronyms.length > 1) {
+          multiPronTabs.innerHTML = info.heteronyms.map((h, hIdx) => `
+            <button onclick="switchHeteronym('${ch}', ${hIdx})" class="px-1.5 py-0.5 text-[10px] rounded border ${hIdx === 0 ? 'bg-vermilion-50 border-vermilion-400 text-vermilion-700 font-bold' : 'bg-white border-gray-300 text-ink-700 hover:bg-ink-100'}" title="切換多音字讀音">
+              音${hIdx + 1}：${h.bopomofo || ''}
+            </button>
+          `).join('');
+        }
+
+        // Render Definitions directly inside the page
+        defContainer.innerHTML = '';
+        info.definitions.forEach((d, idx) => {
+          const item = document.createElement('div');
+          item.className = 'bg-white p-3 rounded-lg border border-[#e8dfcf] text-xs space-y-1.5 shadow-2xs hover:border-[#cfc4af] transition';
+          item.innerHTML = `
+            <div class="flex items-start gap-2">
+              <span class="w-5 h-5 mt-0.5 shrink-0 rounded-full bg-vermilion-50 text-vermilion-700 border border-vermilion-200 flex items-center justify-center font-bold text-[11px]">${idx + 1}</span>
+              <span class="px-1.5 py-0.5 shrink-0 bg-[#f5ede2] text-amber-900 border border-[#dfd2be] rounded text-[10px] font-serif font-bold">${d.type || '釋'}</span>
+              <div class="text-ink-900 font-medium text-sm font-serif leading-relaxed flex-1">${d.def}</div>
+            </div>
+            ${d.quote ? `<div class="text-ink-700 pl-7 text-[11px] font-serif bg-[#fdfcf9] p-1.5 rounded border border-[#f0ebd9]">📜 <strong>文獻出處：</strong>${d.quote}</div>` : ''}
+            ${d.eg ? `<div class="text-vermilion-800 pl-7 text-[11px] font-sans">💡 <strong>實例造句：</strong>${d.eg}</div>` : ''}
+          `;
+          defContainer.appendChild(item);
+        });
+
+        // Render Phrase Chips (Prefix, Suffix, Idiom)
+        renderChips(prefixContainer, info.prefixes, ch);
+        renderChips(suffixContainer, info.suffixes, ch);
+        renderChips(idiomsContainer, info.idioms, ch);
+
+      } else {
+        builtInBadge.className = 'text-xs bg-amber-50 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full';
+        builtInBadge.textContent = '教育部辭典查詢完畢';
+
+        document.getElementById('dictBopomofo').textContent = '—';
+        document.getElementById('dictPinyin').textContent = '—';
+        document.getElementById('dictRadical').textContent = '—';
+        document.getElementById('dictStrokes').textContent = '—';
+        document.getElementById('dictExtStrokes').textContent = '—';
+        document.getElementById('dictDefCount').textContent = '查無詳細釋義';
+
+        defContainer.innerHTML = `
+          <div class="bg-[#faf8f4] p-5 rounded-lg border border-[#e5dcce] text-xs text-ink-800 space-y-2 text-center">
+            <p class="font-serif text-sm">教育部國語辭典未收錄單字「${ch}」之單獨詞條，可能為罕用字或異體字。</p>
+            <p class="text-ink-700 text-xs">建議您至下方「中華語文知識庫官方源流」檢視該字形體的歷史流變。</p>
+          </div>
+        `;
+
+        prefixContainer.innerHTML = `<span class="text-xs text-ink-500 italic">辭典未收錄此字相關詞首</span>`;
+        suffixContainer.innerHTML = `<span class="text-xs text-ink-500 italic">辭典未收錄此字相關詞尾</span>`;
+        idiomsContainer.innerHTML = `<span class="text-xs text-ink-500 italic">辭典未收錄此字相關成語</span>`;
+      }
+
+      // Update Iframe
+      updateIframe(ch);
+
+      // Re-render highlight
+      renderCharacterBadges();
+
+      if (isCompareMode) {
+        renderCompareGrid();
+      }
+    }
+
+    // Switch between multiple readings for polyphonic characters (多音字)
+    function switchHeteronym(ch, hIdx) {
+      const info = dictCache[ch];
+      if (!info || !info.heteronyms || !info.heteronyms[hIdx]) return;
+      const h = info.heteronyms[hIdx];
+
+      document.getElementById('dictBopomofo').textContent = h.bopomofo || '—';
+      document.getElementById('dictPinyin').textContent = h.pinyin || '—';
+
+      const defs = (h.definitions || []).map(d => ({
+        type: d.type || '釋',
+        def: (d.def || '').replace(/`([^~]+)~/g, '$1'),
+        quote: d.quote ? d.quote.map(q => q.replace(/`([^~]+)~/g, '$1')).join('；') : '',
+        eg: d.example ? d.example.map(e => e.replace(/`([^~]+)~/g, '$1')).join('；') : ''
+      }));
+
+      const defContainer = document.getElementById('dictDefinitionsContainer');
+      document.getElementById('dictDefCount').textContent = `共 ${defs.length} 項釋義`;
+      defContainer.innerHTML = '';
+      defs.forEach((d, idx) => {
+        const item = document.createElement('div');
+        item.className = 'bg-white p-3 rounded-lg border border-[#e8dfcf] text-xs space-y-1.5 shadow-2xs';
+        item.innerHTML = `
+          <div class="flex items-start gap-2">
+            <span class="w-5 h-5 mt-0.5 shrink-0 rounded-full bg-vermilion-50 text-vermilion-700 border border-vermilion-200 flex items-center justify-center font-bold text-[11px]">${idx + 1}</span>
+            <span class="px-1.5 py-0.5 shrink-0 bg-[#f5ede2] text-amber-900 border border-[#dfd2be] rounded text-[10px] font-serif font-bold">${d.type || '釋'}</span>
+            <div class="text-ink-900 font-medium text-sm font-serif leading-relaxed flex-1">${d.def}</div>
+          </div>
+          ${d.quote ? `<div class="text-ink-700 pl-7 text-[11px] font-serif bg-[#fdfcf9] p-1.5 rounded border border-[#f0ebd9]">📜 <strong>文獻出處：</strong>${d.quote}</div>` : ''}
+          ${d.eg ? `<div class="text-vermilion-800 pl-7 text-[11px] font-sans">💡 <strong>實例造句：</strong>${d.eg}</div>` : ''}
+        `;
+        defContainer.appendChild(item);
+      });
+    }
+
+    // Helper to render interactive word chips
+    function renderChips(container, words, currentCh) {
+      container.innerHTML = '';
+      if (!words || words.length === 0) {
+        container.innerHTML = `<span class="text-xs text-ink-500 italic">無常用詞彙收錄</span>`;
+        return;
+      }
+
+      words.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'px-2 py-1 text-xs bg-white hover:bg-amber-50 hover:text-amber-900 border border-[#ded5c5] hover:border-amber-400 rounded transition text-ink-800 font-serif flex items-center gap-1 active:scale-95 shadow-2xs';
+        btn.innerHTML = `<span>${w}</span>`;
+        btn.onclick = () => {
+          copyToClipboard(w, `已複製造詞「${w}」！`);
+          document.getElementById('phraseStatusHint').textContent = `已複製造詞「${w}」至剪貼簿`;
+        };
+        btn.title = `點擊複製造詞「${w}」`;
+        container.appendChild(btn);
+      });
+    }
+
+    // Copy all phrases for the active character
+    function copyAllPhrases() {
+      const info = dictCache[activeChar];
+      if (!info) {
+        showFeedback(`當前字「${activeChar}」暫無造詞庫。`, 'info');
+        return;
+      }
+      const all = [
+        `【${activeChar}】常用造詞：`,
+        `詞首：${(info.prefixes || []).join('、') || '無'}`,
+        `詞尾：${(info.suffixes || []).join('、') || '無'}`,
+        `成語：${(info.idioms || []).join('、') || '無'}`
+      ].join('\n');
+
+      copyToClipboard(all, `已複製「${activeChar}」的所有造詞與成語！`);
+    }
+
+    function updateIframe(ch) {
+      const iframe = document.getElementById('linguipediaIframe');
+      iframe.src = getLinguipediaUrl(ch);
+    }
+
+    function reloadIframe() {
+      if (activeChar) {
+        updateIframe(activeChar);
+        showFeedback(`已重新整理「${activeChar}」的中華語文知識庫頁面`, 'info');
+      }
+    }
+
+    function nextChar() {
+      if (currentChars.length === 0) return;
+      const idx = currentChars.indexOf(activeChar);
+      const nextIdx = (idx + 1) % currentChars.length;
+      inspectCharacter(currentChars[nextIdx]);
+    }
+
+    function prevChar() {
+      if (currentChars.length === 0) return;
+      const idx = currentChars.indexOf(activeChar);
+      const prevIdx = (idx - 1 + currentChars.length) % currentChars.length;
+      inspectCharacter(currentChars[prevIdx]);
+    }
+
+    function toggleCharSelection(ch) {
+      if (selectedCharsForCompare.has(ch)) {
+        selectedCharsForCompare.delete(ch);
+      } else {
+        selectedCharsForCompare.add(ch);
+      }
+      if (isCompareMode) {
+        renderCompareGrid();
+      }
+    }
+
+    function selectAllChars(select) {
+      if (select) {
+        selectedCharsForCompare = new Set(currentChars);
+      } else {
+        selectedCharsForCompare.clear();
+      }
+      renderCharacterBadges();
+      if (isCompareMode) {
+        renderCompareGrid();
+      }
+    }
+
+    function toggleCompareMode() {
+      isCompareMode = !isCompareMode;
+      const singleView = document.getElementById('singleInspectView');
+      const multiView = document.getElementById('multiCompareView');
+      const btn = document.getElementById('compareModeBtn');
+
+      if (isCompareMode) {
+        singleView.classList.add('hidden');
+        multiView.classList.remove('hidden');
+        btn.textContent = '返回單字深度檢視';
+        btn.classList.add('bg-vermilion-600', 'text-white');
+        btn.classList.remove('bg-[#eee7d8]', 'text-ink-800');
+        renderCompareGrid();
+      } else {
+        singleView.classList.remove('hidden');
+        multiView.classList.add('hidden');
+        btn.textContent = '切換至並列對照模式';
+        btn.classList.remove('bg-vermilion-600', 'text-white');
+        btn.classList.add('bg-[#eee7d8]', 'text-ink-800');
+      }
+    }
+
+    async function renderCompareGrid() {
+      const grid = document.getElementById('compareGrid');
+      grid.innerHTML = '';
+
+      const chars = Array.from(selectedCharsForCompare);
+      if (chars.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center bg-white rounded-xl border border-dashed border-[#d8cdb8] text-ink-700">
+            請在上方的字庫方塊中勾選至少 1 個漢字以進行並列對照。
+          </div>
+        `;
+        return;
+      }
+
+      for (const ch of chars) {
+        const info = dictCache[ch] || await fetchMoeDictData(ch);
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-[#e2d9c7] p-4 shadow-sm flex flex-col justify-between space-y-3 hover:border-vermilion-400 transition';
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between border-b border-[#eee7da] pb-3">
+            <div class="flex items-center gap-3">
+              <span class="w-12 h-12 rounded-lg bg-[#faf8f4] border border-[#d6ccb9] font-serif font-black text-2xl flex items-center justify-center text-ink-900 shadow-sm">
+                ${ch}
+              </span>
+              <div>
+                <h5 class="font-serif font-bold text-base text-ink-900">「${ch}」國語字義</h5>
+                <span class="text-xs text-ink-700">注音：${info ? info.bopomofo : '檢索中'} | 部首：${info ? info.radical : '—'}</span>
+              </div>
+            </div>
+            <a href="${getMoeRevisedUrl(ch)}" target="_blank" class="text-xs text-amber-700 hover:text-amber-900 font-medium flex items-center gap-0.5">
+              重編字典 ↗
+            </a>
+          </div>
+
+          <!-- Quick definition preview -->
+          <div class="bg-[#f9f7f2] p-2.5 rounded-lg border border-[#e5dcce] text-xs space-y-1">
+            <div class="text-[11px] font-bold text-amber-900">【主要字義】</div>
+            <p class="text-ink-800 font-serif leading-relaxed line-clamp-3">
+              ${info && info.definitions.length > 0 ? `${info.definitions[0].type ? `[${info.definitions[0].type}] ` : ''}${info.definitions[0].def}` : `暫無釋義。`}
+            </p>
+          </div>
+
+          <!-- Vocabulary pills -->
+          <div class="space-y-1">
+            <div class="text-[11px] text-ink-700 font-medium">常用造詞：</div>
+            <div class="flex flex-wrap gap-1">
+              ${info && info.prefixes ? info.prefixes.slice(0, 4).map(w => `<span class="text-[11px] bg-white border border-[#ded5c5] px-1.5 py-0.5 rounded">${w}</span>`).join('') : '<span class="text-[11px] text-ink-700">查無記錄</span>'}
+              ${info && info.suffixes ? info.suffixes.slice(0, 3).map(w => `<span class="text-[11px] bg-white border border-[#ded5c5] px-1.5 py-0.5 rounded">${w}</span>`).join('') : ''}
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#f0ebd9] flex items-center justify-between text-xs">
+            <button onclick="inspectCharacter('${ch}'); toggleCompareMode();" class="text-ink-700 hover:text-vermilion-600 font-medium">
+              至主畫面詳細字義 ➔
+            </button>
+            <a href="${getLinguipediaUrl(ch)}" target="_blank" class="text-vermilion-700 hover:underline">
+              中華語文源流
+            </a>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // Open all filtered characters in distinct browser tabs
+    function openAllInTabs() {
+      if (currentChars.length === 0) {
+        showFeedback('目前沒有待開啟的漢字！', 'warning');
+        return;
+      }
+
+      if (currentChars.length > 10) {
+        showFeedback(`正在開啟前 10 個字的官方源流分頁（若被瀏覽器攔截，請允許彈跳視窗）。`, 'info');
+        currentChars.slice(0, 10).forEach(ch => {
+          window.open(getLinguipediaUrl(ch), '_blank');
+        });
+        return;
+      }
+
+      currentChars.forEach(ch => {
+        window.open(getLinguipediaUrl(ch), '_blank');
+      });
+      showFeedback(`已開啟 ${currentChars.length} 個漢字的官方源流頁面！`, 'success');
+    }
+
+    // Copy all URLs
+    function copyAllLinks() {
+      if (currentChars.length === 0) {
+        showFeedback('無漢字可複製！', 'warning');
+        return;
+      }
+      const textList = currentChars.map(ch => `${ch}: ${getLinguipediaUrl(ch)}`).join('\n');
+      copyToClipboard(textList, `已複製全部 ${currentChars.length} 個字的源流查詢連結！`);
+    }
+
+    // Export Markdown study sheet
+    function exportMarkdown() {
+      if (currentChars.length === 0) {
+        showFeedback('字庫無內容可匯出！', 'warning');
+        return;
+      }
+
+      let md = `# 漢字字義、造詞與源流研習筆記清單\n\n`;
+      md += `* 查詢總字數：${currentChars.length} 字\n\n`;
+      md += `| 漢字 | 注音 | 常用造詞 | 教育部重編辭典 | 中華語文知識庫源流 |\n`;
+      md += `| :--: | :--: | :------- | :------------: | :----------------: |\n`;
+
+      currentChars.forEach(ch => {
+        const info = dictCache[ch];
+        const bopomofo = info ? info.bopomofo : '-';
+        const samplePhrases = info ? (info.prefixes || []).slice(0, 3).join('、') : '-';
+        md += `| **${ch}** | ${bopomofo} | ${samplePhrases} | [教育部字典](${getMoeRevisedUrl(ch)}) | [查看源流](${getLinguipediaUrl(ch)}) |\n`;
+      });
+
+      copyToClipboard(md, '已成功將 Markdown 研習表格複製至剪貼簿！');
+    }
+
+    // Export CSV
+    function exportCsv() {
+      if (currentChars.length === 0) {
+        showFeedback('無內容可下載！', 'warning');
+        return;
+      }
+
+      let csvContent = '\uFEFF字元,注音,常用造詞,教育部國語辭典網址,中華語文知識庫源流網址\n';
+      currentChars.forEach(ch => {
+        const info = dictCache[ch];
+        const bopomofo = info ? info.bopomofo : '';
+        const phrases = info ? (info.prefixes || []).concat(info.suffixes || []).slice(0, 5).join(';') : '';
+        csvContent += `"${ch}","${bopomofo}","${phrases}","${getMoeRevisedUrl(ch)}","${getLinguipediaUrl(ch)}"\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `漢字字義造詞清單_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showFeedback('CSV 清單下載完成！', 'success');
+    }
+
+    // Fallback-safe clipboard copier (iframe safe)
+    function copyToClipboard(text, successMsg) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showFeedback(successMsg || '複製成功！', 'success');
+      } catch (err) {
+        showFeedback('複製失敗，請手動選取文字複製。', 'error');
+      }
+    }
+
+    // In-app Notification Box
+    function showFeedback(message, type = 'info') {
+      const msgBox = document.getElementById('exportStatusMsg');
+      msgBox.classList.remove('hidden', 'text-emerald-800', 'bg-emerald-50', 'border-emerald-200', 'text-amber-800', 'bg-amber-50', 'border-amber-200', 'text-red-800', 'bg-red-50', 'border-red-200');
+
+      if (type === 'success') {
+        msgBox.classList.add('text-emerald-800', 'bg-emerald-50', 'border-emerald-200');
+      } else if (type === 'warning') {
+        msgBox.classList.add('text-amber-800', 'bg-amber-50', 'border-amber-200');
+      } else {
+        msgBox.classList.add('text-ink-900', 'bg-ink-100', 'border-[#cfc4af]');
+      }
+
+      msgBox.textContent = message;
+
+      clearTimeout(window.feedbackTimeout);
+      window.feedbackTimeout = setTimeout(() => {
+        msgBox.classList.add('hidden');
+      }, 4000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCharacterBadges();
+      inspectCharacter('北');
+    });
+  </script>
+</body>
+</html>
